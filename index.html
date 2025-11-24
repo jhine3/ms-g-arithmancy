@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ms. G's Arithmancy Class</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+        body {
+            font-family: 'Crimson Text', serif;
+            background-color: #1a1a2e;
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        .title-font {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Particle Background */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at center, #2d1b4e 0%, #0f0c29 100%);
+        }
+
+        /* Magical Card Styling */
+        .spell-card {
+            background: #fdfbf7;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d4c5a0' fill-opacity='0.2' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(139, 69, 19, 0.2);
+            border: 2px solid #8b4513;
+            transition: all 0.3s ease;
+        }
+
+        /* Time Turner Glow Effect */
+        .time-turner-active {
+            box-shadow: 0 0 30px #ffd700, inset 0 0 20px #ffd700;
+            border-color: #ffd700;
+            animation: pulse-gold 2s infinite;
+        }
+
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 20px #ffd700; }
+            50% { box-shadow: 0 0 40px #ffeb3b; }
+            100% { box-shadow: 0 0 20px #ffd700; }
+        }
+
+        /* Floating Animation for Ms. G */
+        .float-anim {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Success/Fail Animations */
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .sparkle-text {
+            animation: sparkle 0.5s ease-out;
+            color: #ffd700;
+            scale: 1.2;
+        }
+
+        /* Custom Scrollbar for history if needed */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2d1b4e; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888; 
+        }
+    </style>
+</head>
+<body class="text-gray-800 h-screen flex flex-col items-center justify-center relative">
+
+    <!-- Background Canvas -->
+    <div id="canvas-container">
+        <canvas id="stars"></canvas>
+    </div>
+
+    <!-- Game Container -->
+    <div class="w-full max-w-4xl p-4 flex flex-col md:flex-row items-center justify-center gap-8 z-10 relative">
+        
+        <!-- Left Side: Ms. G Avatar -->
+        <div class="flex flex-col items-center w-full md:w-1/3 order-1 md:order-1">
+            <div class="relative w-48 h-48 md:w-64 md:h-64 float-anim mb-4">
+                <!-- Ms. G SVG Avatar -->
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-2xl filter drop-shadow-lg">
+                    <!-- Robes -->
+                    <path d="M40,180 Q100,210 160,180 L170,220 L30,220 Z" fill="#373052" />
+                    <path d="M50,150 Q100,120 150,150 L160,180 Q100,210 40,180 Z" fill="#4a4063" />
+                    <path d="M100,150 L100,220" stroke="#2a2438" stroke-width="2" />
+                    <!-- Tie -->
+                    <path d="M95,150 L105,150 L100,165 Z" fill="#740001" />
+                    <path d="M100,165 L90,180 L110,180 Z" fill="#eeba30" />
+                    <!-- Hair Back -->
+                    <path d="M50,60 Q20,100 30,160 Q100,170 170,160 Q180,100 150,60" fill="#5C4033" />
+                    <!-- Face -->
+                    <ellipse cx="100" cy="100" rx="45" ry="55" fill="#f5d0ba" />
+                    <!-- Eyes -->
+                    <ellipse cx="80" cy="95" rx="6" ry="8" fill="#2d1b0e" />
+                    <ellipse cx="120" cy="95" rx="6" ry="8" fill="#2d1b0e" />
+                    <!-- Glasses -->
+                    <circle cx="80" cy="95" r="12" fill="none" stroke="#333" stroke-width="2" />
+                    <circle cx="120" cy="95" r="12" fill="none" stroke="#333" stroke-width="2" />
+                    <line x1="92" y1="95" x2="108" y2="95" stroke="#333" stroke-width="2" />
+                    <!-- Smile -->
+                    <path d="M85,125 Q100,135 115,125" fill="none" stroke="#a05a2c" stroke-width="2" stroke-linecap="round" />
+                    <!-- Hair Front (Bushy) -->
+                    <path d="M55,60 Q40,90 35,120 Q30,150 50,150" fill="none" stroke="#5C4033" stroke-width="8" stroke-linecap="round"/>
+                    <path d="M145,60 Q160,90 165,120 Q170,150 150,150" fill="none" stroke="#5C4033" stroke-width="8" stroke-linecap="round"/>
+                    <path d="M50,60 Q100,30 150,60" fill="#5C4033" />
+                    <!-- Wand Hand -->
+                    <path d="M160,160 L190,140" stroke="#5C4033" stroke-width="4" stroke-linecap="round" />
+                    <circle cx="190" cy="140" r="3" fill="#fff" class="animate-pulse" />
+                </svg>
+            </div>
+            
+            <!-- Dialogue Box -->
+            <div class="bg-white/90 p-4 rounded-lg shadow-lg border-2 border-purple-900 w-full relative speech-bubble text-center min-h-[80px] flex items-center justify-center">
+                <p id="tutor-msg" class="text-lg font-semibold text-purple-900 italic">"Welcome to Arithmancy! Are you ready to begin?"</p>
+            </div>
+        </div>
+
+        <!-- Right Side: The Game Board -->
+        <div id="game-board" class="w-full md:w-2/3 order-2 md:order-2 flex flex-col items-center">
+            
+            <!-- Start Screen -->
+            <div id="start-screen" class="bg-white/90 p-8 rounded-xl border-4 border-double border-purple-900 text-center shadow-2xl max-w-md w-full">
+                <h1 class="text-4xl title-font font-bold text-purple-900 mb-4">Arithmancy Practice</h1>
+                <p class="text-lg mb-6">You have 3 minutes. Answer as many multiplication scrolls as you can!</p>
+                <div class="flex items-center justify-center gap-2 mb-6 text-amber-700 bg-amber-100 p-2 rounded">
+                    <i class="fas fa-hourglass-half"></i>
+                    <span class="text-sm font-bold">Watch for the Time Turner! It adds +20 seconds!</span>
+                </div>
+                <button onclick="startGame()" class="bg-purple-700 hover:bg-purple-800 text-white text-xl font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 border-2 border-amber-400">
+                    Start Class
+                </button>
+            </div>
+
+            <!-- Active Game UI (Hidden initially) -->
+            <div id="game-ui" class="hidden w-full max-w-md flex flex-col items-center">
+                
+                <!-- HUD -->
+                <div class="flex w-full justify-between mb-4 px-4">
+                    <div class="flex items-center gap-2 text-white bg-purple-900/80 px-4 py-2 rounded-full border border-amber-400">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <span id="score-display" class="text-xl font-bold font-mono">0</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-white bg-purple-900/80 px-4 py-2 rounded-full border border-amber-400" id="timer-container">
+                        <i class="fas fa-clock"></i>
+                        <span id="timer-display" class="text-xl font-bold font-mono">3:00</span>
+                    </div>
+                </div>
+
+                <!-- The Question Card -->
+                <div id="question-card" class="spell-card w-full aspect-[4/3] rounded-lg flex flex-col items-center justify-center relative mb-6 p-6">
+                    <!-- Time Turner Badge (Hidden by default) -->
+                    <div id="time-turner-badge" class="absolute top-4 right-4 hidden animate-bounce">
+                        <i class="fas fa-hourglass-half text-4xl text-amber-500 drop-shadow-md"></i>
+                    </div>
+
+                    <div class="text-center mb-6">
+                        <span id="question-text" class="text-7xl font-bold text-gray-800 title-font"></span>
+                    </div>
+                    
+                    <input type="number" id="answer-input" pattern="[0-9]*" inputmode="numeric" 
+                        class="w-32 text-center text-4xl font-bold border-b-4 border-purple-900 bg-transparent focus:outline-none focus:border-amber-500 transition-colors placeholder-gray-300"
+                        placeholder="?" autocomplete="off">
+                </div>
+
+                <div class="text-white/60 text-sm">Type answer and press Enter</div>
+            </div>
+
+            <!-- Game Over Screen (Hidden) -->
+            <div id="end-screen" class="hidden bg-white/90 p-8 rounded-xl border-4 border-double border-purple-900 text-center shadow-2xl max-w-md w-full">
+                <h2 class="text-3xl title-font font-bold text-purple-900 mb-2">Class Dismissed!</h2>
+                <p class="text-xl mb-4">Great work!</p>
+                
+                <div class="bg-purple-100 p-4 rounded-lg mb-6">
+                    <p class="text-gray-600 uppercase text-xs font-bold tracking-wider">Final Score</p>
+                    <p id="final-score" class="text-6xl font-bold text-purple-800 title-font">0</p>
+                    <p class="text-sm text-purple-600 mt-2" id="final-grade-msg"></p>
+                </div>
+
+                <button onclick="startGame()" class="bg-purple-700 hover:bg-purple-800 text-white text-xl font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 border-2 border-amber-400">
+                    Try Again
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- Audio Context Setup ---
+        // Using simple oscillator beeps to avoid external asset dependencies
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'magic') {
+                // Time Turner sound
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(1200, audioCtx.currentTime + 0.2);
+                osc.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 0.4);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.6);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.6);
+            }
+        }
+
+        // --- Game State ---
+        let score = 0;
+        let timeLeft = 180; // 3 minutes
+        let timerInterval;
+        let currentAnswer = 0;
+        let isTimeTurner = false;
+        let gameActive = false;
+
+        const msGSayings = [
+            "Brilliant!",
+            "Ten points to your house!",
+            "Marvelous calculation!",
+            "Spot on!",
+            "You're a natural arithmetic witch!",
+            "Fantastic!"
+        ];
+
+        const encourageSayings = [
+            "Give that another go.",
+            "Focus your mind.",
+            "Almost, try again.",
+            "A swish and a flick... try again!"
+        ];
+
+        // --- Elements ---
+        const startScreen = document.getElementById('start-screen');
+        const gameUI = document.getElementById('game-ui');
+        const endScreen = document.getElementById('end-screen');
+        const questionText = document.getElementById('question-text');
+        const answerInput = document.getElementById('answer-input');
+        const scoreDisplay = document.getElementById('score-display');
+        const timerDisplay = document.getElementById('timer-display');
+        const tutorMsg = document.getElementById('tutor-msg');
+        const questionCard = document.getElementById('question-card');
+        const timeTurnerBadge = document.getElementById('time-turner-badge');
+        const timerContainer = document.getElementById('timer-container');
+
+        function startGame() {
+            score = 0;
+            timeLeft = 180;
+            gameActive = true;
+            
+            scoreDisplay.innerText = score;
+            updateTimerDisplay();
+            
+            startScreen.classList.add('hidden');
+            endScreen.classList.add('hidden');
+            gameUI.classList.remove('hidden');
+            
+            tutorMsg.innerText = "Let's begin! Wands at the ready!";
+            
+            generateQuestion();
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+
+            // Focus input immediately
+            setTimeout(() => answerInput.focus(), 100);
+        }
+
+        function generateQuestion() {
+            // Clear previous styling
+            questionCard.classList.remove('time-turner-active');
+            timeTurnerBadge.classList.add('hidden');
+            timerContainer.classList.remove('bg-amber-500');
+            
+            // Generate numbers 1-12
+            const num1 = Math.floor(Math.random() * 12) + 1;
+            const num2 = Math.floor(Math.random() * 12) + 1;
+            currentAnswer = num1 * num2;
+            
+            questionText.innerText = `${num1} × ${num2}`;
+            answerInput.value = '';
+            answerInput.focus();
+
+            // 10% Chance for Time Turner
+            isTimeTurner = Math.random() < 0.10;
+
+            if (isTimeTurner) {
+                questionCard.classList.add('time-turner-active');
+                timeTurnerBadge.classList.remove('hidden');
+                tutorMsg.innerText = "A Time Turner Question! Answer correctly for extra time!";
+            }
+        }
+
+        function checkAnswer() {
+            if (!gameActive) return;
+
+            const userVal = parseInt(answerInput.value);
+            
+            if (userVal === currentAnswer) {
+                // Correct
+                score++;
+                scoreDisplay.innerText = score;
+                
+                // Visual Feedback
+                scoreDisplay.classList.add('sparkle-text');
+                setTimeout(() => scoreDisplay.classList.remove('sparkle-text'), 500);
+
+                if (isTimeTurner) {
+                    playSound('magic');
+                    timeLeft += 20;
+                    updateTimerDisplay();
+                    tutorMsg.innerText = "Time extended! Well done!";
+                    timerContainer.classList.add('bg-amber-500'); // Flash timer container
+                    setTimeout(() => timerContainer.classList.remove('bg-amber-500'), 500);
+                } else {
+                    playSound('correct');
+                    const randomPraise = msGSayings[Math.floor(Math.random() * msGSayings.length)];
+                    tutorMsg.innerText = randomPraise;
+                }
+
+                generateQuestion();
+            } else {
+                // Wrong
+                playSound('wrong');
+                questionCard.classList.add('shake');
+                setTimeout(() => questionCard.classList.remove('shake'), 500);
+                answerInput.value = '';
+                const randomEncourage = encourageSayings[Math.floor(Math.random() * encourageSayings.length)];
+                tutorMsg.innerText = randomEncourage;
+            }
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            timerDisplay.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+            
+            if (timeLeft <= 10) {
+                timerDisplay.classList.add('text-red-400');
+            } else {
+                timerDisplay.classList.remove('text-red-400');
+            }
+        }
+
+        function endGame() {
+            gameActive = false;
+            clearInterval(timerInterval);
+            gameUI.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+            
+            let msg = "";
+            if (score > 50) msg = "Outstanding! " + score + " spells cast correctly!";
+            else if (score > 30) msg = "Exceeds Expectations! Great practice.";
+            else msg = "Acceptable. Keep practicing your spells!";
+            
+            document.getElementById('final-grade-msg').innerText = msg;
+            tutorMsg.innerText = "Class dismissed. Excellent effort today.";
+        }
+
+        // Input Listener
+        answerInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // --- Particle Background System ---
+        const canvas = document.getElementById('stars');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 2;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random();
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+                
+                // Twinkle
+                this.opacity += (Math.random() - 0.5) * 0.1;
+                if (this.opacity < 0) this.opacity = 0;
+                if (this.opacity > 1) this.opacity = 1;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            resize();
+            for (let i = 0; i < 100; i++) {
+                particles.push(new Particle());
+            }
+            animateParticles();
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', resize);
+        initParticles();
+
+    </script>
+</body>
+</html>
