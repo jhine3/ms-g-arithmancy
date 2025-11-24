@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ms. G's Arithmancy Class</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -13,6 +13,7 @@
             font-family: 'Crimson Text', serif;
             background-color: #1a1a2e;
             overflow: hidden; /* Prevent scrolling */
+            touch-action: manipulation; /* Improves touch response */
         }
 
         .title-font {
@@ -80,17 +81,6 @@
             color: #ffd700;
             scale: 1.2;
         }
-
-        /* Custom Scrollbar for history if needed */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #2d1b4e; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #888; 
-        }
     </style>
 </head>
 <body class="text-gray-800 h-screen flex flex-col items-center justify-center relative">
@@ -101,11 +91,11 @@
     </div>
 
     <!-- Game Container -->
-    <div class="w-full max-w-4xl p-4 flex flex-col md:flex-row items-center justify-center gap-8 z-10 relative">
+    <div class="w-full max-w-4xl p-4 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 z-10 relative h-full md:h-auto overflow-y-auto md:overflow-visible">
         
         <!-- Left Side: Ms. G Avatar -->
-        <div class="flex flex-col items-center w-full md:w-1/3 order-1 md:order-1">
-            <div class="relative w-48 h-48 md:w-64 md:h-64 float-anim mb-4">
+        <div class="flex flex-col items-center w-full md:w-1/3 order-1 md:order-1 shrink-0">
+            <div class="relative w-32 h-32 md:w-64 md:h-64 float-anim mb-2 md:mb-4">
                 <!-- Ms. G SVG Avatar -->
                 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-2xl filter drop-shadow-lg">
                     <!-- Robes -->
@@ -139,23 +129,23 @@
             </div>
             
             <!-- Dialogue Box -->
-            <div class="bg-white/90 p-4 rounded-lg shadow-lg border-2 border-purple-900 w-full relative speech-bubble text-center min-h-[80px] flex items-center justify-center">
-                <p id="tutor-msg" class="text-lg font-semibold text-purple-900 italic">"Welcome to Arithmancy! Are you ready to begin?"</p>
+            <div class="bg-white/90 p-2 md:p-4 rounded-lg shadow-lg border-2 border-purple-900 w-full relative speech-bubble text-center min-h-[60px] md:min-h-[80px] flex items-center justify-center">
+                <p id="tutor-msg" class="text-md md:text-lg font-semibold text-purple-900 italic">"Welcome to Arithmancy! Are you ready to begin?"</p>
             </div>
         </div>
 
         <!-- Right Side: The Game Board -->
-        <div id="game-board" class="w-full md:w-2/3 order-2 md:order-2 flex flex-col items-center">
+        <div id="game-board" class="w-full md:w-2/3 order-2 md:order-2 flex flex-col items-center pb-20 md:pb-0">
             
             <!-- Start Screen -->
-            <div id="start-screen" class="bg-white/90 p-8 rounded-xl border-4 border-double border-purple-900 text-center shadow-2xl max-w-md w-full">
-                <h1 class="text-4xl title-font font-bold text-purple-900 mb-4">Arithmancy Practice</h1>
-                <p class="text-lg mb-6">You have 3 minutes. Answer as many multiplication scrolls as you can!</p>
+            <div id="start-screen" class="bg-white/90 p-6 md:p-8 rounded-xl border-4 border-double border-purple-900 text-center shadow-2xl max-w-md w-full">
+                <h1 class="text-3xl md:text-4xl title-font font-bold text-purple-900 mb-4">Arithmancy Practice</h1>
+                <p class="text-base md:text-lg mb-6">You have 3 minutes. Answer as many multiplication scrolls as you can!</p>
                 <div class="flex items-center justify-center gap-2 mb-6 text-amber-700 bg-amber-100 p-2 rounded">
                     <i class="fas fa-hourglass-half"></i>
-                    <span class="text-sm font-bold">Watch for the Time Turner! It adds +20 seconds!</span>
+                    <span class="text-sm font-bold">Watch for the Time Turner! (+20s)</span>
                 </div>
-                <button onclick="startGame()" class="bg-purple-700 hover:bg-purple-800 text-white text-xl font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 border-2 border-amber-400">
+                <button onclick="startGame()" class="bg-purple-700 hover:bg-purple-800 text-white text-xl font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 border-2 border-amber-400 w-full md:w-auto">
                     Start Class
                 </button>
             </div>
@@ -176,22 +166,30 @@
                 </div>
 
                 <!-- The Question Card -->
-                <div id="question-card" class="spell-card w-full aspect-[4/3] rounded-lg flex flex-col items-center justify-center relative mb-6 p-6">
+                <div id="question-card" class="spell-card w-full rounded-lg flex flex-col items-center justify-center relative mb-6 p-6">
                     <!-- Time Turner Badge (Hidden by default) -->
                     <div id="time-turner-badge" class="absolute top-4 right-4 hidden animate-bounce">
                         <i class="fas fa-hourglass-half text-4xl text-amber-500 drop-shadow-md"></i>
                     </div>
 
                     <div class="text-center mb-6">
-                        <span id="question-text" class="text-7xl font-bold text-gray-800 title-font"></span>
+                        <span id="question-text" class="text-6xl md:text-7xl font-bold text-gray-800 title-font"></span>
                     </div>
                     
-                    <input type="number" id="answer-input" pattern="[0-9]*" inputmode="numeric" 
-                        class="w-32 text-center text-4xl font-bold border-b-4 border-purple-900 bg-transparent focus:outline-none focus:border-amber-500 transition-colors placeholder-gray-300"
-                        placeholder="?" autocomplete="off">
+                    <!-- Input Area -->
+                    <div class="flex flex-col w-full items-center gap-4">
+                        <input type="number" id="answer-input" pattern="[0-9]*" inputmode="numeric" 
+                            class="w-32 text-center text-4xl font-bold border-b-4 border-purple-900 bg-transparent focus:outline-none focus:border-amber-500 transition-colors placeholder-gray-300"
+                            placeholder="?" autocomplete="off">
+                            
+                        <!-- NEW: Mobile-Friendly Cast Spell Button -->
+                        <button onclick="checkAnswer()" class="w-full bg-purple-700 hover:bg-purple-600 active:bg-purple-800 text-white text-lg font-bold py-3 px-6 rounded-xl shadow-md transition-colors border-b-4 border-purple-900 flex items-center justify-center gap-2 mt-2">
+                            <i class="fas fa-wand-magic-sparkles"></i> Cast Spell
+                        </button>
+                    </div>
                 </div>
 
-                <div class="text-white/60 text-sm">Type answer and press Enter</div>
+                <div class="text-white/60 text-xs md:text-sm text-center">Type answer and press Enter or Cast Spell</div>
             </div>
 
             <!-- Game Over Screen (Hidden) -->
@@ -205,7 +203,7 @@
                     <p class="text-sm text-purple-600 mt-2" id="final-grade-msg"></p>
                 </div>
 
-                <button onclick="startGame()" class="bg-purple-700 hover:bg-purple-800 text-white text-xl font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 border-2 border-amber-400">
+                <button onclick="startGame()" class="bg-purple-700 hover:bg-purple-800 text-white text-xl font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 border-2 border-amber-400 w-full md:w-auto">
                     Try Again
                 </button>
             </div>
@@ -215,7 +213,6 @@
 
     <script>
         // --- Audio Context Setup ---
-        // Using simple oscillator beeps to avoid external asset dependencies
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
         function playSound(type) {
@@ -242,7 +239,6 @@
                 osc.start();
                 osc.stop(audioCtx.currentTime + 0.3);
             } else if (type === 'magic') {
-                // Time Turner sound
                 osc.type = 'triangle';
                 osc.frequency.setValueAtTime(600, audioCtx.currentTime);
                 osc.frequency.linearRampToValueAtTime(1200, audioCtx.currentTime + 0.2);
@@ -256,7 +252,7 @@
 
         // --- Game State ---
         let score = 0;
-        let timeLeft = 180; // 3 minutes
+        let timeLeft = 180; 
         let timerInterval;
         let currentAnswer = 0;
         let isTimeTurner = false;
@@ -316,17 +312,14 @@
                 }
             }, 1000);
 
-            // Focus input immediately
             setTimeout(() => answerInput.focus(), 100);
         }
 
         function generateQuestion() {
-            // Clear previous styling
             questionCard.classList.remove('time-turner-active');
             timeTurnerBadge.classList.add('hidden');
             timerContainer.classList.remove('bg-amber-500');
             
-            // Generate numbers 1-12
             const num1 = Math.floor(Math.random() * 12) + 1;
             const num2 = Math.floor(Math.random() * 12) + 1;
             currentAnswer = num1 * num2;
@@ -335,7 +328,6 @@
             answerInput.value = '';
             answerInput.focus();
 
-            // 10% Chance for Time Turner
             isTimeTurner = Math.random() < 0.10;
 
             if (isTimeTurner) {
@@ -350,12 +342,16 @@
 
             const userVal = parseInt(answerInput.value);
             
+            // Check for empty input
+            if (isNaN(userVal)) {
+                answerInput.focus();
+                return;
+            }
+            
             if (userVal === currentAnswer) {
-                // Correct
                 score++;
                 scoreDisplay.innerText = score;
                 
-                // Visual Feedback
                 scoreDisplay.classList.add('sparkle-text');
                 setTimeout(() => scoreDisplay.classList.remove('sparkle-text'), 500);
 
@@ -364,7 +360,7 @@
                     timeLeft += 20;
                     updateTimerDisplay();
                     tutorMsg.innerText = "Time extended! Well done!";
-                    timerContainer.classList.add('bg-amber-500'); // Flash timer container
+                    timerContainer.classList.add('bg-amber-500');
                     setTimeout(() => timerContainer.classList.remove('bg-amber-500'), 500);
                 } else {
                     playSound('correct');
@@ -374,13 +370,13 @@
 
                 generateQuestion();
             } else {
-                // Wrong
                 playSound('wrong');
                 questionCard.classList.add('shake');
                 setTimeout(() => questionCard.classList.remove('shake'), 500);
                 answerInput.value = '';
                 const randomEncourage = encourageSayings[Math.floor(Math.random() * encourageSayings.length)];
                 tutorMsg.innerText = randomEncourage;
+                answerInput.focus();
             }
         }
 
@@ -412,7 +408,6 @@
             tutorMsg.innerText = "Class dismissed. Excellent effort today.";
         }
 
-        // Input Listener
         answerInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 checkAnswer();
