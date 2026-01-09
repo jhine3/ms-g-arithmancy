@@ -130,7 +130,7 @@
             
             <!-- Dialogue Box -->
             <div class="bg-white/90 p-2 md:p-4 rounded-lg shadow-lg border-2 border-purple-900 w-full relative speech-bubble text-center min-h-[60px] md:min-h-[80px] flex items-center justify-center">
-                <p id="tutor-msg" class="text-md md:text-lg font-semibold text-purple-900 italic">"Welcome to Arithmancy! Are you ready to begin?"</p>
+                <p id="tutor-msg" class="text-md md:text-lg font-semibold text-purple-900 italic">"Welcome to Arithmancy! Choose a class to begin."</p>
             </div>
         </div>
 
@@ -140,14 +140,21 @@
             <!-- Start Screen -->
             <div id="start-screen" class="bg-white/90 p-6 md:p-8 rounded-xl border-4 border-double border-purple-900 text-center shadow-2xl max-w-md w-full">
                 <h1 class="text-3xl md:text-4xl title-font font-bold text-purple-900 mb-4">Arithmancy Practice</h1>
-                <p class="text-base md:text-lg mb-6">You have 3 minutes. Answer as many multiplication scrolls as you can!</p>
+                <p class="text-base md:text-lg mb-6">You have 3 minutes to complete as many scrolls as you can!</p>
+                
                 <div class="flex items-center justify-center gap-2 mb-6 text-amber-700 bg-amber-100 p-2 rounded">
                     <i class="fas fa-hourglass-half"></i>
                     <span class="text-sm font-bold">Watch for the Time Turner! (+20s)</span>
                 </div>
-                <button onclick="startGame()" class="bg-purple-700 hover:bg-purple-800 text-white text-xl font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 border-2 border-amber-400 w-full md:w-auto">
-                    Start Class
-                </button>
+
+                <div class="flex flex-col gap-3">
+                    <button onclick="startGame('multiplication')" class="bg-purple-700 hover:bg-purple-800 text-white text-xl font-bold py-3 px-6 rounded-full shadow-lg transition transform hover:scale-105 border-2 border-amber-400 w-full">
+                        <i class="fas fa-times-circle mr-2"></i> Multiplication
+                    </button>
+                    <button onclick="startGame('division')" class="bg-blue-800 hover:bg-blue-900 text-white text-xl font-bold py-3 px-6 rounded-full shadow-lg transition transform hover:scale-105 border-2 border-amber-400 w-full">
+                        <i class="fas fa-divide mr-2"></i> Division
+                    </button>
+                </div>
             </div>
 
             <!-- Active Game UI (Hidden initially) -->
@@ -182,7 +189,7 @@
                             class="w-32 text-center text-4xl font-bold border-b-4 border-purple-900 bg-transparent focus:outline-none focus:border-amber-500 transition-colors placeholder-gray-300"
                             placeholder="?" autocomplete="off">
                             
-                        <!-- NEW: Mobile-Friendly Cast Spell Button -->
+                        <!-- Mobile-Friendly Cast Spell Button -->
                         <button onclick="checkAnswer()" class="w-full bg-purple-700 hover:bg-purple-600 active:bg-purple-800 text-white text-lg font-bold py-3 px-6 rounded-xl shadow-md transition-colors border-b-4 border-purple-900 flex items-center justify-center gap-2 mt-2">
                             <i class="fas fa-wand-magic-sparkles"></i> Cast Spell
                         </button>
@@ -203,8 +210,8 @@
                     <p class="text-sm text-purple-600 mt-2" id="final-grade-msg"></p>
                 </div>
 
-                <button onclick="startGame()" class="bg-purple-700 hover:bg-purple-800 text-white text-xl font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 border-2 border-amber-400 w-full md:w-auto">
-                    Try Again
+                <button onclick="location.reload()" class="bg-purple-700 hover:bg-purple-800 text-white text-xl font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 border-2 border-amber-400 w-full md:w-auto">
+                    Return to Hall
                 </button>
             </div>
 
@@ -257,6 +264,8 @@
         let currentAnswer = 0;
         let isTimeTurner = false;
         let gameActive = false;
+        let gameMode = 'multiplication'; // 'multiplication' or 'division'
+        let wrongAttempts = 0; // Tracks consecutive wrong answers
 
         const msGSayings = [
             "Brilliant!",
@@ -287,10 +296,12 @@
         const timeTurnerBadge = document.getElementById('time-turner-badge');
         const timerContainer = document.getElementById('timer-container');
 
-        function startGame() {
+        function startGame(mode) {
             score = 0;
             timeLeft = 180;
             gameActive = true;
+            gameMode = mode;
+            wrongAttempts = 0;
             
             scoreDisplay.innerText = score;
             updateTimerDisplay();
@@ -299,7 +310,7 @@
             endScreen.classList.add('hidden');
             gameUI.classList.remove('hidden');
             
-            tutorMsg.innerText = "Let's begin! Wands at the ready!";
+            tutorMsg.innerText = mode === 'division' ? "Division practice! Wands at the ready!" : "Multiplication! Wands at the ready!";
             
             generateQuestion();
             
@@ -316,18 +327,31 @@
         }
 
         function generateQuestion() {
+            // Reset state for new question
             questionCard.classList.remove('time-turner-active');
             timeTurnerBadge.classList.add('hidden');
             timerContainer.classList.remove('bg-amber-500');
+            wrongAttempts = 0;
+            answerInput.disabled = false;
             
+            // Generate numbers 1-12
             const num1 = Math.floor(Math.random() * 12) + 1;
             const num2 = Math.floor(Math.random() * 12) + 1;
-            currentAnswer = num1 * num2;
+
+            if (gameMode === 'multiplication') {
+                currentAnswer = num1 * num2;
+                questionText.innerText = `${num1} × ${num2}`;
+            } else {
+                // Division Logic: Create a product first, then divide
+                const product = num1 * num2;
+                currentAnswer = num2; // The answer is one of the factors
+                questionText.innerText = `${product} ÷ ${num1}`;
+            }
             
-            questionText.innerText = `${num1} × ${num2}`;
             answerInput.value = '';
             answerInput.focus();
 
+            // 10% Chance for Time Turner
             isTimeTurner = Math.random() < 0.10;
 
             if (isTimeTurner) {
@@ -349,6 +373,7 @@
             }
             
             if (userVal === currentAnswer) {
+                // Correct
                 score++;
                 scoreDisplay.innerText = score;
                 
@@ -370,13 +395,27 @@
 
                 generateQuestion();
             } else {
+                // Wrong
+                wrongAttempts++;
                 playSound('wrong');
                 questionCard.classList.add('shake');
                 setTimeout(() => questionCard.classList.remove('shake'), 500);
-                answerInput.value = '';
-                const randomEncourage = encourageSayings[Math.floor(Math.random() * encourageSayings.length)];
-                tutorMsg.innerText = randomEncourage;
-                answerInput.focus();
+                
+                if (wrongAttempts >= 3) {
+                    // Mercy Rule
+                    tutorMsg.innerText = `Tricky one! The answer is ${currentAnswer}. Let's try another!`;
+                    answerInput.value = currentAnswer;
+                    answerInput.disabled = true; // Stop them from typing
+                    setTimeout(() => {
+                        generateQuestion();
+                    }, 2500); // Wait 2.5 seconds before moving on
+                } else {
+                    // Normal Wrong Answer
+                    answerInput.value = '';
+                    const randomEncourage = encourageSayings[Math.floor(Math.random() * encourageSayings.length)];
+                    tutorMsg.innerText = randomEncourage;
+                    answerInput.focus();
+                }
             }
         }
 
